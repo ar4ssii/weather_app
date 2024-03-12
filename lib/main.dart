@@ -8,42 +8,83 @@ import 'package:weather_app/service/weather_service.dart';
 void main() {
   runApp(const MyApp());
 }
+class AnimatedWeatherIcon extends StatefulWidget {
+  final IconData iconData;
+  final String? weatherCondition;
 
-// class AnimatedSunnyIcon extends StatefulWidget {
-//   @override
-//   _AnimatedSunnyIconState createState() => _AnimatedSunnyIconState();
-// }
-//
-// class _AnimatedSunnyIconState extends State<AnimatedSunnyIcon> with SingleTickerProviderStateMixin {
-//   late AnimationController _controller;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _controller = AnimationController(
-//       duration: Duration(seconds: 10),
-//       vsync: this,
-//     )..repeat();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return RotationTransition(
-//       turns: _controller,
-//       child: Icon(
-//         FontAwesomeIcons.sun,
-//         size: 150, // Adjust the size as needed
-//         color: Colors.amber,
-//       ),
-//     );
-//   }
-//
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-//     super.dispose();
-//   }
-// }
+  const AnimatedWeatherIcon({Key? key, required this.iconData, this.weatherCondition})
+      : super(key: key);
+
+  @override
+  _AnimatedWeatherIconState createState() => _AnimatedWeatherIconState();
+}
+
+class _AnimatedWeatherIconState extends State<AnimatedWeatherIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacityAnimation;
+  late Animation<double> _pulsatingAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: Duration(seconds: 10),
+      vsync: this,
+    )..repeat();
+
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+    _pulsatingAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(_controller);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    switch (widget.weatherCondition?.toLowerCase()) {
+      case 'clear':
+      case 'snow':
+        return RotationTransition(
+          turns: _controller,
+          child: Icon(
+            widget.iconData,
+            size: 100,
+            color: Colors.grey[700],
+          ),
+        );
+      case 'clouds':
+      case 'rain':
+      case 'drizzle':
+        return FadeTransition(
+          opacity: _opacityAnimation,
+          child: Icon(
+            widget.iconData,
+            size: 100,
+            color: Colors.grey[700],
+          ),
+        );
+      case 'thunderstorm':
+        return ScaleTransition(
+          scale: _pulsatingAnimation,
+          child: Icon(
+            widget.iconData,
+            size: 100,
+            color: Colors.grey[700],
+          ),
+        );
+      default:
+        return Icon(
+          widget.iconData,
+          size: 100,
+          color: Colors.grey[700],
+        );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -193,10 +234,9 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    _getWeatherIcon(_weather?.mainCondition),
-                    size: 100,
-                    color: Colors.grey[700],
+                  AnimatedWeatherIcon(
+                    iconData: _getWeatherIcon(_weather?.mainCondition),
+                    weatherCondition: _weather?.mainCondition,
                   ),
                   Text(
                     '${_weather?.temperature.round() ?? '0'}°C',

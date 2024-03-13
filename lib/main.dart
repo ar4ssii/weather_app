@@ -29,7 +29,7 @@ class _AnimatedWeatherIconState extends State<AnimatedWeatherIcon>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(seconds: 10),
+      duration: Duration(seconds: 5),
       vsync: this,
     )..repeat();
 
@@ -53,6 +53,7 @@ class _AnimatedWeatherIconState extends State<AnimatedWeatherIcon>
       case 'clouds':
       case 'rain':
       case 'drizzle':
+      case 'mist':
         return FadeTransition(
           opacity: _opacityAnimation,
           child: Icon(
@@ -184,6 +185,8 @@ class _MyHomePageState extends State<MyHomePage> {
         return FontAwesomeIcons.snowflake;
       case 'thunderstorm':
         return FontAwesomeIcons.cloudBolt;
+      case 'mist':
+        return FontAwesomeIcons.smog;
       case 'drizzle':
         return FontAwesomeIcons.cloudRain;
     // Add more cases for other weather conditions as needed
